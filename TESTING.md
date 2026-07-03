@@ -2,6 +2,7 @@
 
 > Documento normativo de testes para os projetos que o adotam. Agnóstico de linguagem e stack. A tese: **todo teste precisa provar algo importante sobre o sistema.** Se não reduz risco, não valida regra crítica, não protege contrato, não evita regressão real e não aumenta a confiança de deploy — ele provavelmente não merece existir.
 > **Para a IA:** leia este arquivo antes de propor ou escrever testes; use o Bloco 1 para decidir SE o teste vale, o Bloco 2 para saber ONDE ele vive, e reporte conforme o Bloco 4. Companheiro do [security-playbook](../security-playbook/SECURITY.md) — segurança de teste (RLS, prompt injection, abuso de auth) mora lá e é referenciada, não duplicada.
+> As referências ao security-playbook são relativas e assumem os dois repos clonados como irmãos (ex.: `D:\Projetos\security-playbook` e `D:\Projetos\testing-playbook`).
 
 ---
 

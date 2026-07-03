@@ -5,7 +5,9 @@
 > **Missão:** transformar esforço de teste em confiança mensurável para evoluir o produto sem quebrar o que importa.
 > **Princípio:** não buscamos quantidade de testes — buscamos prova de que o que importa funciona.
 
-Não é uma coletânea de boas práticas nem um gerador de suíte inflada. É **norma operacional**: regras objetivas (MUST/NEVER), um motor de decisão por risco, playbooks por camada com exemplos copiáveis e um gate de qualidade verificável. Companheiro do [security-playbook](../security-playbook/) — a segurança de teste (RLS, prompt injection, abuso de auth) mora lá e é **referenciada, não duplicada**.
+Não é uma coletânea de boas práticas nem um gerador de suíte inflada. É **norma operacional**: regras objetivas (MUST/NEVER), um motor de decisão por risco, playbooks por camada com exemplos copiáveis e um gate de qualidade verificável. Companheiro do [security-playbook](https://github.com/silasmarques/security-playbook) — a segurança de teste (RLS, prompt injection, abuso de auth) mora lá e é **referenciada, não duplicada**.
+
+> **Referências cruzadas:** os módulos apontam para o security-playbook por caminho relativo (`../security-playbook/…`), assumindo os dois repositórios clonados lado a lado (ex.: `D:\Projetos\`). É assim que a IA de codificação os lê localmente. Na web, use o link acima.
 
 ---
 
@@ -63,7 +65,7 @@ Depois peça, por exemplo, *"monte a estratégia de teste desta feature"* — a 
 2. **Risco decide tudo** — probabilidade × impacto, não score inventado.
 3. **Teste onde o risco vive** — Testing Trophy, não pirâmide dogmática.
 4. **Agnóstico** — estratégia universal; exemplos em Gherkin + pseudocódigo, adaptáveis a qualquer stack.
-5. **Não duplicar segurança** — o [security-playbook](../security-playbook/) é a fonte da verdade dela.
+5. **Não duplicar segurança** — o [security-playbook](https://github.com/silasmarques/security-playbook) é a fonte da verdade dela.
 
 ## 🔧 Manutenção
 
@@ -77,4 +79,4 @@ Depois peça, por exemplo, *"monte a estratégia de teste desta feature"* — a 
 
 ---
 
-*Criado por [Silas Marques](https://github.com/silasmarques), 2026. Companheiro do [security-playbook](../security-playbook/).*
+*Criado por [Silas Marques](https://github.com/silasmarques), 2026. Companheiro do [security-playbook](https://github.com/silasmarques/security-playbook).*
