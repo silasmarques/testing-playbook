@@ -1,0 +1,20 @@
+# CI do playbook: a norma verificada como código.
+# verify-docs: links internos íntegros, limites de tamanho, frontmatter com last-review.
+# (Exemplos aqui são Gherkin/pseudocódigo — não há compilação a checar, ao contrário
+#  do security-playbook, cujos Padrões prontos são código real.)
+name: ci
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Links internos, limites e frontmatter
+        run: deno run --allow-read scripts/verify-docs.ts

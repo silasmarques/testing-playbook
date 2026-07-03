@@ -43,9 +43,25 @@ Um teste **agrega** quando responde "sim" a pelo menos uma pergunta crítica: pe
 
 ---
 
-## 🚀 Como usar com IA
+## 📎 Requer o security-playbook (repo companheiro)
 
-Cole no arquivo de regras da sua IA (`CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`), ajustando o caminho:
+Este playbook **não duplica** segurança de teste (RLS, prompt injection, abuso de auth, vazamento de secret) — ele **referencia** o [security-playbook](https://github.com/silasmarques/security-playbook). Para adoção completa, clone os dois **lado a lado** (as referências cruzadas são relativas: `../security-playbook/…`):
+
+```bash
+git clone https://github.com/silasmarques/security-playbook.git
+git clone https://github.com/silasmarques/testing-playbook.git
+```
+
+Dá para usar o testing-playbook sozinho — mas o roteamento de segurança apontará para um repo que você não clonou. Para testes com superfície de segurança, tenha os dois.
+
+## 🚀 Como usar com IA — passo a passo
+
+**Passo 1 — Clone** os repositórios num caminho fixo da sua máquina (bloco acima).
+
+**Passo 2 — Cole este bloco no arquivo de regras da sua IA**, ajustando o caminho do clone:
+
+- Claude Code → `~/.claude/CLAUDE.md` (global) ou `CLAUDE.md` do projeto
+- Cursor → `.cursorrules` · Copilot → `.github/copilot-instructions.md`
 
 ```markdown
 ## Testing Playbook (obrigatório)
@@ -54,10 +70,25 @@ Norte de testes: `<caminho-do-clone>/testing-playbook/TESTING.md`.
 
 Ao planejar, revisar ou escrever testes: ler o TESTING.md (inegociáveis + roteamento)
 e o(s) módulo(s) indicados. Todo teste proposto tem um bug nomeado e a camada certa;
-listar também os testes que NÃO valem. Segurança de teste → security-playbook.
+listar também os testes que NÃO valem (parte da entrega). Segurança de teste →
+security-playbook. Performance sempre com threshold; E2E cobre jornada, não detalhe.
 ```
 
-Depois peça, por exemplo, *"monte a estratégia de teste desta feature"* — a IA deve devolver riscos, matriz por camada, obrigatórios/recomendados/opcionais, **o que não vale**, BDD e o quality gate.
+**Passo 3 — Teste a adoção.** Numa sessão nova, peça *sem dizer "faça muitos testes"*:
+
+```text
+Monte a estratégia de teste da feature de login.
+```
+
+A IA deve devolver riscos, matriz por camada, **obrigatórios/recomendados/opcionais**, **os testes que NÃO valem** (com o porquê), cenários BDD e o quality gate — não uma lista inflada. Se ela só despejar testes sem priorizar por risco, confira o caminho do Passo 2.
+
+**Passo 4 — Use no dia a dia.** Exemplos de pedidos e o que esperar:
+
+| Você diz | A IA faz |
+|---|---|
+| "Que testes valem para este endpoint?" | Matriz por camada + A×B de ownership + o que não vale ([api-testing](playbooks/api-testing.md)) |
+| "Vale um E2E aqui?" | Só se for jornada crítica; senão aponta a camada mais barata ([test-layers](strategy/test-layers.md)) |
+| "Monta o quality gate deste PR" | Itens ativados pelo que o diff toca ([quality-gates](strategy/quality-gates.md)) |
 
 ## 🧭 Princípios de design
 
@@ -72,6 +103,10 @@ Depois peça, por exemplo, *"monte a estratégia de teste desta feature"* — a 
 - Cada módulo tem `last-review` e `sources` no frontmatter; afirmações não triviais citam fonte oficial.
 - **Cadência:** playbooks a cada trimestre (ferramentas mudam); estratégia ao menos 1×/ano.
 - Playbook **opinativo e curado**: encontrou um erro? Abra uma issue.
+
+## 📄 Licença
+
+[CC BY-ND 4.0](LICENSE.md) — use e compartilhe com atribuição; não redistribua versões modificadas. **Exceção:** os exemplos e templates (Gherkin, pseudocódigo, snippets) são MIT — copie e adapte livremente. Detalhes em [LICENSE.md](LICENSE.md).
 
 ## Fontes
 
