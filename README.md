@@ -68,8 +68,6 @@ testing-playbook/
 | [test-strategy](prompts/test-strategy.md) | Planejar testes de uma feature: riscos → matriz por camada → obrigatórios/recomendados/opcionais → o que não vale → BDD → quality gate |
 | [suite-review](prompts/suite-review.md) | Revisar uma suíte que já existe: rodar, dar veredicto por teste (manter / consertar / mover / apagar), provar que os testes críticos conseguem falhar e apontar risco sem cobertura |
 
-### Regras para agentes
-
 ### Exemplo resolvido — [examples/](examples/)
 
 **[test-strategy-share-link](examples/test-strategy-share-link.md)** — uma estratégia completa para uma feature fictícia, do risco ao quality gate, incluindo os testes descartados e uma resposta curta a uma pergunta pontual. Serve para calibrar o que esperar da IA.
@@ -77,6 +75,8 @@ testing-playbook/
 ### Laboratório e medição — [lab/](lab/README.md) · [eval/](eval/run-suite-review.ts)
 
 Uma suíte ruim de propósito, com 11 testes defeituosos, 3 testes bons como isca e um [gabarito](lab/gabarito.json) em que cada veredicto é demonstrado: o CI planta 8 bugs no código e confere quais testes caem. Sobre ela, `deno task eval` mede se uma IA com o prompt de revisão de suíte separa o que vale do que não vale — com `--baseline` para comparar contra a mesma IA sem o playbook. Detalhes e limites em [lab/README.md](lab/README.md).
+
+### Regras para agentes
 
 **[AGENTS.md](AGENTS.md)** — duas partes. **A:** resumo operacional para a IA atuar como **QA Architect e SDET defensivo** num projeto (a fonte da verdade continua sendo o TESTING.md). **B:** como alterar este repositório — comandos e regras da casa.
 
@@ -86,24 +86,39 @@ Cada módulo segue a mesma intenção: **decidir se testar, onde testar, como pr
 
 ## 🚀 Como usar — passo a passo
 
-### Setup com IA de codificação (5 minutos)
+O guia segue a vida de uma aplicação: **instalar → entender os riscos → arrumar a suíte que existe → testar cada feature nova → proteger o PR → liberar → manter**. Cada etapa diz o que pedir à IA, o que esperar de volta e qual módulo do playbook está por trás. Quem trabalha sem IA segue as mesmas etapas lendo o módulo indicado.
 
-**Passo 1 — Clone os playbooks** em um caminho fixo da sua máquina. Para adoção completa, clone os dois lado a lado:
+Exemplo usado do começo ao fim: a **Agenda**, uma aplicação fictícia de marcação de consultas, com a feature *cancelar consulta com reembolso* (reembolso integral até 24h antes; depois disso, sem reembolso; só o paciente dono da consulta ou a clínica cancelam).
+
+| Etapa | Quando | Módulo principal |
+|---|---|---|
+| [0. Instalar](#etapa-0--instalar-uma-vez-por-máquina) | Uma vez por máquina | este README |
+| [1. Mapa de riscos](#etapa-1--mapa-de-riscos-da-aplicação-uma-vez-por-aplicação) | Uma vez por aplicação | [test-value-and-risk](strategy/test-value-and-risk.md) |
+| [2. Revisar a suíte existente](#etapa-2--revisar-a-suíte-que-já-existe) | Se já há testes | [suite-review](prompts/suite-review.md) |
+| [3. Estratégia da feature](#etapa-3--estratégia-de-teste-antes-de-codar-a-feature) | A cada feature | [test-strategy](prompts/test-strategy.md) |
+| [4. Escrever os testes](#etapa-4--escrever-os-testes-camada-por-camada) | A cada feature | [playbooks/](playbooks/) |
+| [5. Bug vira teste](#etapa-5--bug-corrigido-vira-teste-de-regressão) | A cada correção | [TESTING.md](TESTING.md), inegociável 12 |
+| [6. Gate do PR](#etapa-6--quality-gate-antes-de-abrir-o-pr) | A cada PR | [quality-gates](strategy/quality-gates.md) |
+| [7. Sign-off](#etapa-7--sign-off-de-release) | A cada release | [quality-gates](strategy/quality-gates.md) |
+| [8. Manter](#etapa-8--manter-a-suíte-honesta) | A cada trimestre | [suite-review](prompts/suite-review.md) |
+
+### Etapa 0 — Instalar (uma vez por máquina)
+
+**0.1 — Clone os dois playbooks lado a lado**, num caminho fixo:
 
 ```bash
+cd ~/Developer   # ou a pasta onde ficam seus projetos
 git clone https://github.com/silasmarques/security-playbook.git
 git clone https://github.com/silasmarques/testing-playbook.git
 ```
 
-As referências cruzadas usam caminhos relativos (`../security-playbook/...`), assumindo os dois repositórios como irmãos, por exemplo em `~/Developer/`.
+As referências cruzadas usam caminhos relativos (`../security-playbook/...`), por isso os dois ficam como pastas irmãs.
 
-**Passo 2 — Cole este bloco no arquivo de regras da sua IA**, ajustando o caminho do clone:
+**0.2 — Cole o bloco abaixo no arquivo de regras da sua IA**, trocando `<caminho-do-clone>`:
 
-- Claude Code → `~/.claude/CLAUDE.md` (global) ou `CLAUDE.md` do projeto
+- Claude Code → `~/.claude/CLAUDE.md` (vale para todos os projetos) ou `CLAUDE.md` do projeto
 - Cursor → `.cursor/rules/testing-playbook.mdc` (com frontmatter `alwaysApply: true`) ou `AGENTS.md` na raiz do projeto
 - Copilot → `.github/copilot-instructions.md`
-
-> **Agente que roda fora da sua máquina** (agente em nuvem, CI) não enxerga um caminho local. Nesse caso o playbook precisa estar **dentro do repositório do projeto** — como submódulo git ou cópia — e o bloco aponta para esse caminho relativo. A licença permite o uso interno.
 
 ```markdown
 ## Testing Playbook (obrigatório)
@@ -118,23 +133,225 @@ antes de deploy.
 **Como:** ler o TESTING.md (inegociáveis + roteamento) e os módulos indicados para a
 tarefa. Todo teste proposto deve nomear o bug concreto que pegaria, a regra que
 protege, a camada mais barata que prova o risco e o custo de manutenção. Listar
-também os testes que NÃO valem. Teste novo foi visto falhar e exercita o artefato real, não uma cópia da
-regra. Segurança de teste → security-playbook.
+também os testes que NÃO valem. Teste novo foi visto falhar e exercita o artefato
+real, não uma cópia da regra. Segurança de teste → security-playbook.
 
 **Sempre que o usuário pedir** ("monta a estratégia de teste", "vale testar isso?",
 "revise a suíte", "crie testes"), a consulta é integral: TESTING.md + módulos
 relevantes + quality gate aplicável. Pergunta pontual recebe resposta curta.
 ```
 
-**Passo 3 — Teste a adoção.** Numa sessão nova, peça *sem dizer "faça muitos testes"*:
+> **Agente que roda fora da sua máquina** (agente em nuvem, CI) não enxerga um caminho local. Nesse caso o playbook precisa estar **dentro do repositório do projeto** — como submódulo git ou cópia — e o bloco aponta para esse caminho relativo. A licença permite o uso interno.
+
+**0.3 — Confirme que pegou.** Abra uma sessão **nova** dentro de um projeto e peça, sem dizer "faça muitos testes":
 
 ```text
 Monte a estratégia de teste da feature de login.
 ```
 
-A IA deve devolver riscos, matriz por camada, obrigatórios/recomendados/opcionais, **testes que não valem** com justificativa, cenários BDD, dados necessários e quality gate. Compare com o [exemplo resolvido](examples/test-strategy-share-link.md). Se ela só despejar uma lista longa de testes sem priorizar por risco, confira o caminho do Passo 2.
+Pegou se a resposta tem riscos, testes classificados (obrigatório / recomendado / opcional) e uma seção de **testes que não valem**, com o motivo. Compare com o [exemplo resolvido](examples/test-strategy-share-link.md). Se vier uma lista longa de testes sem priorização, o bloco não foi lido: confira o caminho e se a sessão é nova.
 
-**Passo 4 — Use no dia a dia.** Exemplos de pedidos e o que esperar:
+### Etapa 1 — Mapa de riscos da aplicação (uma vez por aplicação)
+
+Antes de qualquer teste, saiba o que não pode quebrar. Tudo o que vem depois é priorizado por esta lista.
+
+```text
+Usando o testing-playbook (strategy/test-value-and-risk.md), leia o código deste
+projeto e monte o mapa de riscos: os fluxos e regras em que um bug custa dinheiro,
+vaza dado, quebra permissão ou derruba receita. Para cada um: o bug concreto, o
+impacto, a probabilidade (complexidade, integrações, histórico) e o quadrante.
+Não proponha testes ainda. Diga o que você leu e o que NÃO leu.
+```
+
+Para a Agenda, o resultado esperado é uma tabela curta como esta:
+
+| Risco (bug concreto) | Impacto | Probabilidade | Decisão |
+|---|---|---|---|
+| Paciente cancela a consulta de outro paciente | Alto | Alta | Automatizar; segurança → security-playbook |
+| Reembolso integral liberado com menos de 24h | Alto (dinheiro) | Alta (borda de tempo, fuso) | Automatizar |
+| Reembolso emitido duas vezes no reenvio | Alto (dinheiro) | Média | Automatizar |
+| Lembrete por e-mail com horário errado | Médio | Média | Automatizar em uma camada leve |
+| Cor do botão "Cancelar" fora do padrão | Baixo | Baixa | Não automatizar |
+
+Guarde o mapa no repositório do projeto (por exemplo, numa seção do `CLAUDE.md` ou `AGENTS.md` dele). Ele é a entrada das etapas 2 e 3 e muda pouco.
+
+### Etapa 2 — Revisar a suíte que já existe
+
+Pule se o projeto ainda não tem testes. Se tem, faça isto **antes** de escrever testes novos: uma suíte verde e inflada esconde exatamente os riscos da Etapa 1.
+
+Copie o bloco de [prompts/suite-review.md](prompts/suite-review.md) e preencha as duas lacunas:
+
+```text
+Escopo da revisão: a suíte inteira
+Contexto: Agenda — marcação de consultas; Node + Postgres; crítico: quem pode
+cancelar, regra de reembolso de 24h, cobrança e estorno.
+```
+
+O que volta, e o que fazer com cada parte:
+
+| Parte da resposta | O que você faz |
+|---|---|
+| Como a suíte foi executada e o que não foi analisado | Confere se rodou de verdade (comando, total, tempo) |
+| Tabela de veredictos: MANTER / CONSERTAR / MOVER / APAGAR | Aprova a lista antes de qualquer alteração |
+| Achados com arquivo:linha, confirmado ou suspeito | Lê os "suspeitos": pedem verificação sua |
+| Prova de falha: o que foi quebrado e que teste percebeu | A parte mais valiosa — teste crítico que ficou verde com a regra quebrada é achado grave |
+| Lacunas: risco crítico sem teste | Vira entrada da Etapa 3 |
+
+Depois de aprovar: apague primeiro (é o ganho mais barato), conserte os que protegem risco alto, e só então escreva o que falta.
+
+Um exemplo do defeito mais comum que essa revisão encontra — teste negativo sem controle positivo:
+
+```text
+ANTES — passa com qualquer implementação, porque não existe consulta nenhuma:
+  teste "paciente não vê consulta de outro":
+    esperar listar_consultas(paciente=bruno) está vazio
+
+DEPOIS — só passa se o filtro de dono funcionar:
+  teste "paciente não vê consulta de outro":
+    consulta_da_ana = criar_consulta(paciente=ana)
+    esperar listar_consultas(paciente=ana) contém consulta_da_ana     # controle positivo
+    esperar listar_consultas(paciente=bruno) NÃO contém consulta_da_ana
+```
+
+Para ver esse e outros nove defeitos em código que roda, com a prova de quais bugs cada teste deixa passar, abra o [laboratório](lab/README.md).
+
+### Etapa 3 — Estratégia de teste antes de codar a feature
+
+A cada feature nova, peça a estratégia **antes** do código. Copie o bloco de [prompts/test-strategy.md](prompts/test-strategy.md) e preencha o contexto:
+
+```text
+Contexto:
+- Produto: Agenda (marcação de consultas)
+- Stack: Node + Postgres + React
+- Feature analisada: cancelar consulta com reembolso. POST /appointments/:id/cancel.
+  Reembolso integral até 24h antes do horário; depois, sem reembolso. Só o paciente
+  dono ou um usuário da clínica cancelam. O estorno é pedido a um provedor de
+  pagamento externo.
+```
+
+A resposta tem onze seções; as três que decidem a qualidade são:
+
+- **Testes obrigatórios**, cada um com o bug que pega, a camada e como vê-lo falhar. Para a Agenda, algo como:
+
+  | Teste | Bug que pega | Camada |
+  |---|---|---|
+  | Regra de reembolso em tabela de casos: 24h01 antes → integral; 24h00 → integral; 23h59 → zero; consulta já passada → recusa | Reembolso indevido na borda de tempo | Unitário, relógio injetado |
+  | Bruno cancela a consulta da Ana → 404; Ana cancela a própria → 200 | Cancelamento de consulta alheia | API |
+  | Reenviar o mesmo cancelamento não gera segundo estorno | Estorno em dobro | Integração, banco real |
+  | Provedor de pagamento responde 5xx → consulta fica "cancelamento pendente", sem erro interno exposto | Consulta cancelada sem estorno, ou stack trace na resposta | Integração, provedor dublado |
+
+- **Testes que não valem**, com o motivo — por exemplo, "E2E para cada combinação de horário" (a regra já está no unitário) e "teste de que o botão Cancelar existe" (nenhum bug plantável).
+- **Quality gate do PR**, que você vai usar na Etapa 6.
+
+Se a lista de obrigatórios passar de meia dúzia para uma feature deste tamanho, desconfie e pergunte: *"qual bug cada um pega que os outros não pegam?"*.
+
+### Etapa 4 — Escrever os testes, camada por camada
+
+Com a estratégia aprovada, peça a implementação de um grupo por vez. A IA abre o playbook da camada; você também pode abrir.
+
+| Você vai testar | Peça assim | Playbook |
+|---|---|---|
+| Regra pura (o cálculo do reembolso) | "Escreva o unitário em tabela de casos da regra de reembolso, com relógio injetado" | [integration-testing](playbooks/integration-testing.md) P4 |
+| Código + banco (idempotência do estorno) | "Escreva o teste de integração do reenvio de cancelamento contra o Postgres real" | [integration-testing](playbooks/integration-testing.md) |
+| Endpoint (401, 403/404, ownership, erro) | "Que testes valem para POST /appointments/:id/cancel?" | [api-testing](playbooks/api-testing.md) |
+| O que o frontend consome do backend | "Monte o contrato de GET /appointments/:id, com a lista do que nunca pode vir" | [contract-testing](playbooks/contract-testing.md) |
+| A jornada do paciente | "Vale um E2E do cancelamento? Se sim, um só" | [e2e-testing](playbooks/e2e-testing.md) |
+| Dúvida sobre camada | "Em que camada fica o teste de fuso horário do reembolso?" | [test-layers](strategy/test-layers.md) |
+| "Mocko o provedor de pagamento? E o banco?" | Pergunte exatamente assim | [integration-testing](playbooks/integration-testing.md) P1 |
+| Carga num endpoint caro ou crítico | "Como testar performance da busca de horários?" — a resposta exige um SLO seu | [performance-testing](playbooks/performance-testing.md) |
+| RLS, injeção, abuso de auth, prompt injection | Não é aqui | [security-playbook](https://github.com/silasmarques/security-playbook) |
+
+**O ritual que não se pula: ver o teste falhar** (inegociável 13). Para cada teste obrigatório, depois de verde:
+
+```text
+1. Quebre a regra de produção de propósito.
+   Agenda: troque "horas_ate_consulta >= 24" por "> 24" na regra de reembolso.
+2. Rode o teste. Ele TEM de ficar vermelho, e pelo motivo certo.
+3. Desfaça a quebra. Rode de novo: verde.
+```
+
+Ficou verde com a regra quebrada? O teste não protege nada — conserte-o antes de seguir. Peça à IA: *"quebre a regra, rode e me mostre a saída do teste falhando"*. "Deve falhar" não vale.
+
+### Etapa 5 — Bug corrigido vira teste de regressão
+
+Quando um bug real aparece em fluxo importante, a ordem é: **teste primeiro, correção depois**.
+
+```text
+Bug: paciente em fuso diferente do da clínica recebeu reembolso integral cancelando
+3h antes. Antes de corrigir: escreva o teste que reproduz o bug e me mostre ele
+falhando. Depois corrija e mostre o teste passando.
+```
+
+O teste que nasce vermelho com o bug presente é a prova de que ele impede a volta. Teste escrito depois da correção, que nunca foi visto falhar, é palpite.
+
+### Etapa 6 — Quality gate antes de abrir o PR
+
+```text
+Monta o quality gate deste PR.
+```
+
+A IA lê o diff e ativa só os itens de [quality-gates](strategy/quality-gates.md) P1 que ele aciona. Para o PR do cancelamento, o gate esperado:
+
+```text
+SEMPRE
+[x] Todo teste novo tem bug nomeado e asserção forte.
+[x] Todo teste novo foi visto falhar (regra de 24h quebrada → unitário vermelho).
+[x] Nenhum teste removido ou afrouxado sem justificativa.
+REGRA DE NEGÓCIO
+[x] Regra de reembolso coberta no unitário, com as bordas.
+PERSISTÊNCIA
+[x] Idempotência do estorno testada contra o Postgres real.
+API
+[x] 401 sem sessão; ownership A×B com controle positivo; erro sem vazar internals.
+INTEGRAÇÃO EXTERNA
+[x] Provedor de pagamento com timeout e 5xx.
+FLUXO CRÍTICO
+[ ] 1 E2E da jornada de cancelamento.   ← pendente: bloqueia o PR
+```
+
+Item pendente bloqueia, ou vira **risco aceito por escrito** — quem aceitou e por quê. Não existe "depois eu adiciono".
+
+### Etapa 7 — Sign-off de release
+
+Antes de liberar uma versão, peça o sign-off no formato de [quality-gates](strategy/quality-gates.md) P2:
+
+```text
+Monte o QA sign-off da versão 2.4 com base nos PRs desde a 2.3: escopo testado,
+camadas exercitadas, resultado, riscos aceitos (com dono) e evidência. Não afirme
+que algo foi testado sem o link da execução.
+```
+
+O valor do documento está em duas linhas: **riscos aceitos conscientemente** e **evidência**. "Testado, está ok" não é sign-off.
+
+### Etapa 8 — Manter a suíte honesta
+
+- **A cada trimestre, ou quando a suíte ficar lenta ou instável:** repita a Etapa 2 no trecho que mais mudou.
+- **Teste instável:** não é reexecutado até passar. Ou é consertado na causa (espera fixa, ordem, relógio — [test-layers](strategy/test-layers.md) P3), ou é apagado.
+- **Mapa de riscos (Etapa 1):** revise quando entrar integração nova, meio de pagamento novo ou mudança de modelo de permissão.
+- **Playbook:** `git pull` nos dois clones; o [CHANGELOG](CHANGELOG.md) diz o que mudou na norma.
+
+### Estou usando 100%?
+
+Cada parte do playbook tem um momento em que entra. Se alguma linha nunca foi usada na sua aplicação, é uma etapa que está sendo pulada.
+
+| Parte | Entra em | Sinal de que está em uso |
+|---|---|---|
+| [TESTING.md](TESTING.md) | Toda etapa | A IA cita inegociável ou módulo ao responder |
+| [test-value-and-risk](strategy/test-value-and-risk.md) | Etapas 1, 2, 3 | Existe mapa de riscos; toda resposta lista o que NÃO vale |
+| [test-layers](strategy/test-layers.md) | Etapas 3, 4 | Nenhuma regra de negócio testada só em E2E |
+| [quality-gates](strategy/quality-gates.md) | Etapas 6, 7 | PR com gate; release com riscos aceitos assinados |
+| [integration-testing](playbooks/integration-testing.md) | Etapa 4 | Testes de dado rodam no mesmo motor de produção |
+| [api-testing](playbooks/api-testing.md) | Etapa 4 | Todo recurso com dono tem teste A×B com controle positivo |
+| [contract-testing](playbooks/contract-testing.md) | Etapa 4 | Fronteira front↔back tem contrato com lista negativa |
+| [e2e-testing](playbooks/e2e-testing.md) | Etapa 4 | Poucos E2E, um por jornada, zero espera fixa |
+| [performance-testing](playbooks/performance-testing.md) | Etapa 4 | Endpoint caro tem threshold ligado a um SLO |
+| [test-strategy](prompts/test-strategy.md) | Etapa 3 | Estratégia existe antes do código da feature |
+| [suite-review](prompts/suite-review.md) | Etapas 2, 8 | A suíte já teve testes apagados por veredicto |
+| [exemplo resolvido](examples/test-strategy-share-link.md) | Etapas 0, 3 | Você compara a resposta da IA com ele |
+| [laboratório](lab/README.md) | Etapa 2 | Você reconhece na sua suíte os defeitos de lá |
+| [security-playbook](https://github.com/silasmarques/security-playbook) | Etapas 1, 4 | Risco de segurança é roteado para lá |
+
+### Atalhos do dia a dia
 
 | Você diz | A IA faz |
 |---|---|
@@ -147,11 +364,13 @@ A IA deve devolver riscos, matriz por camada, obrigatórios/recomendados/opciona
 
 ### Sem IA (uso humano)
 
-1. **Vai testar uma feature?** Comece por [TESTING.md](TESTING.md) e responda o gate em uma frase: que bug real, importante e plausível este teste pegaria?
-2. **Não sabe se o teste vale?** Use [test-value-and-risk.md](strategy/test-value-and-risk.md) antes de escrever automação.
-3. **Não sabe a camada?** Use [test-layers.md](strategy/test-layers.md) e escolha a camada mais barata que prova o risco.
-4. **Vai abrir PR?** Monte o gate com [quality-gates.md](strategy/quality-gates.md).
-5. **Herdou uma suíte?** Siga o método de [suite-review.md](prompts/suite-review.md) — ele serve para humano também.
+As etapas são as mesmas; em vez de pedir, você lê o módulo indicado e responde às perguntas dele. O atalho mínimo:
+
+1. **Antes de escrever um teste**, responda o gate de uma frase do [TESTING.md](TESTING.md): que bug real, importante e plausível este teste pegaria?
+2. **Não sabe se vale?** [test-value-and-risk](strategy/test-value-and-risk.md). **Não sabe a camada?** [test-layers](strategy/test-layers.md).
+3. **Depois de escrever**, quebre a regra e veja o teste falhar.
+4. **Vai abrir PR?** Marque o gate de [quality-gates](strategy/quality-gates.md) P1 à mão.
+5. **Herdou uma suíte?** O método de [suite-review](prompts/suite-review.md) serve para humano também.
 6. **O risco é segurança?** Pare aqui e siga o [security-playbook](https://github.com/silasmarques/security-playbook).
 
 ### Playbook companheiro
