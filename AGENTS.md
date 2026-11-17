@@ -57,7 +57,9 @@ Norma de testes em pt-BR, pública, licença CC BY-ND. Visão geral: [README.md]
 ```bash
 deno task ci      # tudo o que o CI roda — obrigatório antes de commit
 deno task docs    # links, frontmatter, referências Rn/Pn, contagens, roteamento
-deno task test    # quebra cada garantia de propósito; a verificação tem de acusar
+deno task test    # verificação quebrada de propósito + prova do laboratório + pontuador
+deno task lab     # só a prova do laboratório: planta cada bug na cobaia e confere o gabarito
+deno task eval    # medição com IA (CLI claude, custa tokens, fora do CI) — só a pedido
 deno task dates   # como docs, mas revisão vencida vira erro
 ```
 
@@ -70,4 +72,6 @@ deno task dates   # como docs, mas revisão vencida vira erro
 - **Módulo, prompt ou exemplo novo** entra no Bloco 2 do TESTING.md e nas contagens do README (o CI cobra os dois).
 - **Uma fonte da verdade:** regra mora em um módulo; os outros apontam. Segurança mora no security-playbook.
 - **Mudança de norma** (regra nova, alterada ou removida) vai para o CHANGELOG com o motivo.
+- **Laboratório:** defeito novo entra primeiro em `lab/cobaia/` e em `lab/gabarito.json`, com a mutação que o comprova. A cobaia não leva comentário que entregue o defeito. Os números de `lab/README.md` e do README vêm do marcador `<!-- lab: … -->`, que o CI confere contra a medição.
+- **Resultado de medição com IA só é anunciado depois de executado**, com data, modelo e número de execuções.
 - `docs/` é gitignored (rascunhos internos) — nada do produto mora lá.

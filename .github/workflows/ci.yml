@@ -19,6 +19,6 @@ jobs:
       - name: Documentação consistente (links, frontmatter, referências, contagens, roteamento)
         run: deno task docs
       - name: Tipos
-        run: deno check --frozen scripts/
-      - name: A verificação consegue falhar (mutações)
+        run: deno check --frozen scripts/ lab/lib.ts lab/prova.test.ts eval/
+      - name: A verificação consegue falhar; o gabarito do laboratório é provado; o pontuador reprova
         run: deno task test

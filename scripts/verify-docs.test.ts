@@ -8,25 +8,22 @@ import { assert, assertEquals } from "jsr:@std/assert@1.0.13";
 import { verify } from "./verify-docs.ts";
 
 const REPO = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
-const DIRS = ["strategy", "playbooks", "prompts", "examples"];
+const SKIP = new Set([".git", "node_modules", "docs", "cov"]);
 
-/** Copia os .md do repo para <tmp>/testing-playbook e cria um repo irmão mínimo. */
+async function copyDir(from: string, to: string): Promise<void> {
+  await Deno.mkdir(to, { recursive: true });
+  for await (const e of Deno.readDir(from)) {
+    if (SKIP.has(e.name)) continue;
+    if (e.isDirectory) await copyDir(`${from}/${e.name}`, `${to}/${e.name}`);
+    else if (e.isFile) await Deno.copyFile(`${from}/${e.name}`, `${to}/${e.name}`);
+  }
+}
+
+/** Copia o repo para <tmp>/testing-playbook e cria um repo irmão mínimo ao lado. */
 async function sandbox(): Promise<string> {
   const tmp = await Deno.makeTempDir({ prefix: "tp-verify-" });
   const root = `${tmp}/testing-playbook`;
-  await Deno.mkdir(root);
-  for (const dir of [".", ...DIRS]) {
-    if (dir !== ".") await Deno.mkdir(`${root}/${dir}`);
-    for await (const e of Deno.readDir(`${REPO}/${dir}`)) {
-      if (e.isFile && e.name.endsWith(".md")) await Deno.copyFile(`${REPO}/${dir}/${e.name}`, `${root}/${dir}/${e.name}`);
-    }
-  }
-  // alvos não-.md que a documentação referencia
-  await Deno.mkdir(`${root}/.github/workflows`, { recursive: true });
-  await Deno.mkdir(`${root}/scripts`);
-  for (const f of [".github/workflows/ci.yml", "scripts/verify-docs.ts", "scripts/verify-docs.test.ts"]) {
-    await Deno.copyFile(`${REPO}/${f}`, `${root}/${f}`);
-  }
+  await copyDir(REPO, root);
   await Deno.mkdir(`${tmp}/security-playbook/core`, { recursive: true });
   await Deno.writeTextFile(`${tmp}/security-playbook/SECURITY.md`, "# stub\n");
   await Deno.writeTextFile(`${tmp}/security-playbook/core/security-testing.md`, "# stub\n");
@@ -100,6 +97,8 @@ const MUTATIONS: Mutation[] = [
     apply: async (r) => {
       await Deno.writeTextFile(`${r}/playbooks/novo.md`, "---\nlast-review: 2026-11-01\n---\n\n# Novo\n\n- **R1 — MUST** existir.\n");
     } },
+  { name: "link quebrado em lab/README.md", expect: /link quebrado: lab\/README\.md/,
+    apply: (r) => edit(r, "lab/README.md", "(gabarito.json)", "(gabarito-nao-existe.json)") },
   { name: "TESTING.md acima do limite de linhas", expect: /TESTING\.md com \d+ linhas/,
     apply: (r) => edit(r, "TESTING.md", /$/, "\n".repeat(160)) },
 ];

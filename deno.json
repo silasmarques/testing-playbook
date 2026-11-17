@@ -2,8 +2,10 @@
   "tasks": {
     "docs": "deno run --allow-read scripts/verify-docs.ts",
     "dates": "deno run --allow-read scripts/verify-docs.ts --strict-dates",
-    "test": "deno test --allow-read --allow-write scripts/",
-    "ci": "deno task docs && deno check scripts/ && deno task test"
+    "test": "deno test --allow-read --allow-write --allow-run --allow-env scripts/ lab/prova.test.ts eval/",
+    "lab": "deno test --allow-read --allow-write --allow-run --allow-env lab/prova.test.ts",
+    "eval": "deno run --allow-read --allow-write --allow-run --allow-env eval/run-suite-review.ts",
+    "ci": "deno task docs && deno check scripts/ lab/lib.ts lab/prova.test.ts eval/ && deno task test"
   },
   "compilerOptions": {
     "strict": true,

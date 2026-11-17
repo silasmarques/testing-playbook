@@ -1,8 +1,9 @@
 ---
-last-review: 2026-07-02
+last-review: 2026-11-17
 sources:
   - https://kentcdodds.com/blog/write-tests
   - https://playwright.dev/docs/actionability
+  - https://playwright.dev/docs/locators
 ---
 
 # Testar E2E (jornadas de usuário)
@@ -13,7 +14,7 @@ sources:
 
 - **R1 — MUST** E2E cobre **jornada crítica**, não detalhe: o fluxo que, se quebrar, o usuário não consegue fazer o que dá valor/dinheiro. Uma jornada = um teste; não 10 variações frágeis.
 - **R2 — NEVER** re-testar em E2E uma regra que a API/unitário já prova. E2E que repete validação de campo é custo sem risco novo — a regra vive na camada barata, o E2E cobre o caminho.
-- **R3 — NEVER** `sleep`/espera fixa. Espere por **condição** (elemento acionável, resposta recebida, URL mudou). Espera fixa é a causa nº 1 de flakiness — ou é lenta demais, ou curta demais.
+- **R3 — NEVER** `sleep`/espera fixa. Espere por **condição** (elemento acionável, resposta recebida, URL mudou). Espera fixa é instável por construção — ou é lenta demais, ou curta demais.
 - **R4 — MUST** localizar elementos por **papel/rótulo acessível ou test-id estável**, não por CSS/estrutura de DOM frágil. Seletor acoplado a layout quebra a cada ajuste visual.
 - **R5 — MUST** cada E2E semeia e limpa o **próprio estado** (usuário, dados), sem depender de outro teste nem de ordem. Estado compartilhado = falha em cascata e vermelho falso.
 - **R6 — MUST** quando o produto tem área restrita, incluir **uma** jornada **negada**: usuário sem permissão tenta o fluxo e a interface o bloqueia sem exibir dado. Isto não re-testa a regra de autorização (ela é provada na API, onde é imposta — `test-layers.md` R3); prova a faceta que só o E2E enxerga: rota, redirecionamento e tela não entregam o conteúdo. Uma por fronteira de acesso, não uma por papel × tela. A checagem de segurança em si → [security-playbook](../../security-playbook/SECURITY.md).

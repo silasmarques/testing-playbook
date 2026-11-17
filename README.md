@@ -14,6 +14,8 @@ Não é uma coletânea de boas práticas nem um gerador de cobertura inflada: é
 
 **Em números:** 13 regras inegociáveis · 3 módulos [strategy/](strategy/) · 5 [playbooks/](playbooks/) · 2 [prompts/](prompts/) · 1 [exemplo resolvido](examples/test-strategy-share-link.md) · [AGENTS.md](AGENTS.md) para orientar IAs · [CI](.github/workflows/ci.yml) que verifica a norma e prova que a verificação consegue falhar · integração explícita com o `security-playbook`.
 
+**Por que isso importa, medido:** no [laboratório](lab/README.md) deste repositório há uma suíte com **14 testes verdes, 96% de cobertura de linhas, e 3 de 8 bugs críticos passam** sem nenhum teste perceber — dois deles com um teste de nome certo que não consegue falhar. O CI planta cada bug e confere. <!-- lab: {"testes":14,"defeituosos":11,"uteis":5,"bugs":8,"escapam":3,"cobertura":96} -->
+
 **Neste README:** [O que tem dentro](#-o-que-tem-dentro) · [Como usar](#-como-usar--passo-a-passo) · [Princípios de design](#-princípios-de-design) · [Manutenção e garantias](#-manutenção-e-garantias) · [Playbook companheiro](#playbook-companheiro) · [Licença](#-licença)
 
 ---
@@ -27,6 +29,8 @@ testing-playbook/
 ├── playbooks/           ← integração/unitário, API, contrato, E2E e performance
 ├── prompts/             ← estratégia de teste por feature + revisão de suíte existente
 ├── examples/            ← exemplo resolvido: como fica uma boa estratégia
+├── lab/                 ← suíte-cobaia com defeitos plantados + gabarito provado por mutação
+├── eval/                ← mede se uma IA, com o playbook, revisa a cobaia direito
 ├── scripts/             ← verificação determinística da norma + mutações que a provam
 ├── AGENTS.md            ← regras para agentes (usando o playbook / alterando este repo)
 ├── CHANGELOG.md         ← o que mudou na norma, e por quê
@@ -69,6 +73,10 @@ testing-playbook/
 ### Exemplo resolvido — [examples/](examples/)
 
 **[test-strategy-share-link](examples/test-strategy-share-link.md)** — uma estratégia completa para uma feature fictícia, do risco ao quality gate, incluindo os testes descartados e uma resposta curta a uma pergunta pontual. Serve para calibrar o que esperar da IA.
+
+### Laboratório e medição — [lab/](lab/README.md) · [eval/](eval/run-suite-review.ts)
+
+Uma suíte ruim de propósito, com 11 testes defeituosos, 3 testes bons como isca e um [gabarito](lab/gabarito.json) em que cada veredicto é demonstrado: o CI planta 8 bugs no código e confere quais testes caem. Sobre ela, `deno task eval` mede se uma IA com o prompt de revisão de suíte separa o que vale do que não vale — com `--baseline` para comparar contra a mesma IA sem o playbook. Detalhes e limites em [lab/README.md](lab/README.md).
 
 **[AGENTS.md](AGENTS.md)** — duas partes. **A:** resumo operacional para a IA atuar como **QA Architect e SDET defensivo** num projeto (a fonte da verdade continua sendo o TESTING.md). **B:** como alterar este repositório — comandos e regras da casa.
 
@@ -171,7 +179,8 @@ Para cobertura completa, adote os dois — clonados lado a lado. O testing-playb
 - **A norma é verificada como código:** todo push roda [o CI](.github/workflows/ci.yml) — links (arquivos e pastas), frontmatter, toda referência a regra (`[viola R3]`, `(R1, R7)`), contagens anunciadas, roteamento sem módulo órfão, limites de tamanho — e secret scan via gitleaks.
 - **A verificação é verificada:** [verify-docs.test.ts](scripts/verify-docs.test.ts) quebra cada uma dessas garantias de propósito e exige que o CI acuse. Localmente: `deno task ci`.
 - **A cadência é cobrada:** um workflow semanal falha quando um módulo passa do prazo de revisão.
-- **O que o CI NÃO prova:** que as regras estão certas, que as fontes citadas ainda dizem o que dizíamos, nem que uma IA com o playbook propõe testes melhores. As duas primeiras dependem da revisão humana; a terceira ainda não é medida.
+- **O gabarito do laboratório é provado:** [prova.test.ts](lab/prova.test.ts) planta cada bug na cobaia e exige que caiam exatamente os testes previstos; o pontuador da medição tem de reprovar uma revisão complacente e uma destrutiva ([score.test.ts](eval/score.test.ts)).
+- **O que o CI NÃO prova:** que as regras estão certas, que as fontes citadas ainda dizem o que dizíamos, nem que uma IA com o playbook revisa ou propõe testes melhores. As duas primeiras dependem da revisão humana. Para a terceira existe a medição (`deno task eval`), mas ela roda fora do CI e **ainda não tem resultado publicado**.
 - Histórico de mudanças da norma: [CHANGELOG.md](CHANGELOG.md).
 - Este é um playbook **opinativo e curado**: encontrou um erro? Abra uma issue com o risco concreto, a regra afetada e a evidência.
 

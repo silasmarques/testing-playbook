@@ -1,5 +1,22 @@
 # Histórico de versões
 
+## v1.2.0 — 2026-11-17 · a tese demonstrada
+
+A v1.1 verificava a documentação. Faltava evidência do que o playbook afirma sobre testes. Esta versão acrescenta um laboratório em que isso é executado.
+
+### Novo
+
+- **[lab/](lab/README.md)** — suíte-cobaia com 14 testes (11 com defeito plantado, 3 bons como isca), 8 bugs plantáveis e gabarito. Resultado medido: 96% de cobertura de linhas e 3 de 8 bugs críticos sem nenhum teste que perceba.
+- **[lab/prova.test.ts](lab/prova.test.ts)** — no CI: planta cada bug e exige que caiam exatamente os testes do gabarito; confere a coerência do gabarito e os números anunciados.
+- **[eval/](eval/run-suite-review.ts)** — medição de revisão de suíte por IA, com e sem playbook, usando o próprio bloco de `prompts/suite-review.md`. Pontuador determinístico e testado. **A medição em si ainda não foi executada** (o CLI `claude` não estava disponível); nenhum resultado é anunciado.
+- **Verificação de links** passa a cobrir `lab/`.
+
+### Revisão trimestral
+
+- contract-testing, e2e-testing e performance-testing: fontes reabertas em 2026-11-17, `last-review` atualizado.
+- e2e-testing R3: removido "a causa nº 1 de flakiness" — nenhuma fonte citada sustenta o superlativo.
+- performance-testing: acrescentada a fonte dos tipos de teste; "Load" anotado com o nome que o k6 usa (average-load).
+
 ## v1.1.0 — 2026-11-17 · a norma aplicada a si mesma
 
 Revisão independente. A v1 pregava "todo teste prova um risco" e "a norma é verificada como código", mas a própria verificação deixava passar 9 de 10 quebras plantadas. Esta versão corrige isso e resolve contradições entre módulos.
@@ -37,7 +54,7 @@ Revisão independente. A v1 pregava "todo teste prova um risco" e "a norma é ve
 
 ### Pendências conhecidas
 
-- `last-review` de contract-testing, e2e-testing e performance-testing segue em 2026-07-02 (vencido): os textos foram ajustados, mas as fontes não foram reabertas nesta revisão.
+- `last-review` de contract-testing, e2e-testing e performance-testing seguia vencido — resolvido na v1.2.0.
 - Não há medição de adoção por IA: o exemplo resolvido calibra a expectativa, mas não mede se uma IA com o playbook propõe testes melhores.
 
 ## v1.0.0 — 2026-07-03

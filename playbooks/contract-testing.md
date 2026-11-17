@@ -1,5 +1,5 @@
 ---
-last-review: 2026-07-02
+last-review: 2026-11-17
 sources:
   - https://martinfowler.com/articles/consumerDrivenContracts.html
   - https://docs.pact.io/

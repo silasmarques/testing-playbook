@@ -19,6 +19,8 @@ export interface Options { strictDates?: boolean; today?: number }
 
 const MODULE_DIRS = ["strategy", "playbooks"] as const;
 const DOC_DIRS = ["strategy", "playbooks", "prompts", "examples"] as const;
+/** Pastas cujos .md têm os links conferidos, mas que não entram no roteamento do TESTING.md. */
+const LINK_ONLY_DIRS = ["lab"] as const;
 /** Dias até a revisão vencer: playbooks trimestral (+30 de folga); strategy anual. */
 const REVIEW_LIMIT: Record<string, number> = { playbooks: 120, strategy: 400 };
 
@@ -40,7 +42,7 @@ export async function verify(root: string, opts: Options = {}): Promise<Result> 
   const today = opts.today ?? Date.now();
 
   const files = await mdIn(root, ".");
-  for (const d of DOC_DIRS) files.push(...await mdIn(root, d));
+  for (const d of [...DOC_DIRS, ...LINK_ONLY_DIRS]) files.push(...await mdIn(root, d));
   const texts = new Map<string, string>();
   for (const f of files) texts.set(f, await Deno.readTextFile(`${root}/${f}`));
 
@@ -147,7 +149,7 @@ export async function verify(root: string, opts: Options = {}): Promise<Result> 
   // --- 5. roteamento completo ---
   const b2 = testing.slice(testing.indexOf("## Bloco 2"), testing.indexOf("## Bloco 3"));
   for (const f of files) {
-    if (f.includes("/") && !b2.includes(`(${f})`)) errors.push(`fora do roteamento: ${f} não aparece no Bloco 2 do TESTING.md`);
+    if (DOC_DIRS.some((d) => f.startsWith(`${d}/`)) && !b2.includes(`(${f})`)) errors.push(`fora do roteamento: ${f} não aparece no Bloco 2 do TESTING.md`);
   }
 
   // --- 6. tamanho e cadência ---

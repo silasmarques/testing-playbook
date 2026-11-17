@@ -1,8 +1,9 @@
 ---
-last-review: 2026-07-02
+last-review: 2026-11-17
 sources:
   - https://grafana.com/docs/k6/latest/
   - https://grafana.com/docs/k6/latest/using-k6/thresholds/
+  - https://grafana.com/docs/k6/latest/testing-guides/test-types/
 ---
 
 # Testar Performance (carga com objetivo)
@@ -25,7 +26,7 @@ sources:
 | Tipo | Pergunta que responde | Quando usar |
 |---|---|---|
 | **Smoke** | "O endpoint está saudável sob carga mínima?" | Todo CI — gate rápido de sanidade |
-| **Load** | "Aguenta a carga esperada de uso real?" | Antes de release; capacidade nominal |
+| **Load** (average-load) | "Aguenta a carga esperada de uso real?" | Antes de release; capacidade nominal |
 | **Stress** | "Até onde aguenta antes de quebrar?" | Planejamento de capacidade; achar o teto |
 | **Spike** | "Sobrevive a um pico súbito?" | Campanhas, lançamentos, viralização |
 | **Soak** | "Degrada ao longo do tempo?" (memória, conexões) | Antes de rodar por dias; caça a vazamento |
