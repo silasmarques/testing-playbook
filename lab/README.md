@@ -48,14 +48,16 @@ Ou seja: o veredicto do gabarito é demonstrado por execução. Não é opinião
 ```bash
 deno task eval                       # com o playbook
 deno task eval --baseline            # sem o playbook, para comparar
-deno task eval --score revisao.json  # pontua uma revisão feita à mão em qualquer IA
+deno task eval --prompt-only         # imprime o prompt, para rodar à mão em qualquer IA
+deno task eval --score revisao.json  # pontua a revisão que essa IA escreveu
 ```
 
 Como ler: **defeituosos detectados** (quanto do problema foi visto), **bons condenados** (falso positivo — uma revisão que manda apagar tudo não ganha), **veredicto dentro do aceito** e **lacunas apontadas**. A pontuação é determinística e testada ([../eval/score.test.ts](../eval/score.test.ts)); a resposta da IA não é — uma execução é uma amostra, não um resultado.
 
 ## Limites
 
-- **A medição com IA ainda não foi executada.** O disparo depende do CLI `claude`; nenhum resultado é anunciado aqui até existir um.
+- **Nenhum resultado de medição com IA é publicado aqui.** Um número desses vale para um modelo, num dia, numa execução; num repositório público ele seria lido como resultado do playbook. Rode a medição no seu contexto e tire a sua conclusão.
+- **A cobaia é fácil para um modelo atual.** Ela demonstra bem a tese (cobertura alta, bugs passando), mas discrimina pouco entre revisões boas: para comparar com e sem playbook, precisa de defeitos mais sutis.
 - A cobaia é pequena e sem banco: prova qualidade de teste, não escolha de camada nem integração real.
 - Gabarito e cobaia foram escritos juntos. A prova garante que são coerentes entre si e com a execução, não que cobrem todo tipo de teste ruim.
 - O casamento de lacunas é por função + palavras-chave: pode perder uma lacuna descrita com outras palavras. Leia a resposta antes de concluir.

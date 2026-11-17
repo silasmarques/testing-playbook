@@ -3,6 +3,7 @@
 //
 //   deno task eval                      # IA com o playbook
 //   deno task eval --baseline           # IA sem o playbook (para comparar)
+//   deno task eval --prompt-only       # imprime o prompt, para rodar à mão em qualquer IA
 //   deno task eval --score revisao.json # só pontua uma revisão já feita (sem chamar IA)
 //   opções: --model sonnet  --keep  --out relatorio.md
 //
@@ -41,7 +42,6 @@ if (scoreOnly) await finish(`Revisão de suíte — arquivo ${scoreOnly}`, await
 
 const baseline = argv.has("baseline");
 const model = argv.get("model") ?? "sonnet";
-const dir = await copiarCobaia();
 
 const FORMATO = `
 Ao final, escreva o arquivo revisao.json na raiz do projeto, com exatamente esta forma:
@@ -66,6 +66,13 @@ if (baseline) {
     FORMATO;
 }
 
+// Sem o CLI: imprime o prompt para colar em qualquer IA, dentro de uma cópia de lab/cobaia.
+if (argv.has("prompt-only")) {
+  console.log(prompt);
+  Deno.exit(0);
+}
+
+const dir = await copiarCobaia();
 const bin = Deno.env.get("CLAUDE_BIN") ?? "claude";
 const args = [
   "-p", prompt,

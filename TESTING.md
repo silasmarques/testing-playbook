@@ -39,6 +39,7 @@ Violar qualquer item abaixo produz teste de vaidade — número que sobe sem con
 | Testar RLS, prompt injection, abuso de auth, vazamento de secret | [security-playbook/core/security-testing.md](../security-playbook/core/security-testing.md) e módulos citados lá |
 | Gerar uma estratégia de teste para uma feature | [prompts/test-strategy.md](prompts/test-strategy.md) |
 | Revisar/enxugar uma suíte que já existe | [prompts/suite-review.md](prompts/suite-review.md) |
+| Registrar no projeto o mapa de riscos, a última revisão e os riscos aceitos | [templates/TESTING-STATUS.md](templates/TESTING-STATUS.md) |
 | Ver como fica uma boa resposta (exemplo resolvido) | [examples/test-strategy-share-link.md](examples/test-strategy-share-link.md) |
 
 ## Bloco 3 — O gate em uma frase
@@ -53,7 +54,8 @@ Violar qualquer item abaixo produz teste de vaidade — número que sobe sem con
 4. **Como reportar — proporcional ao pedido.** Estratégia de feature → formato completo do prompt [test-strategy.md](prompts/test-strategy.md). Revisão de suíte → formato de [suite-review.md](prompts/suite-review.md). Pergunta pontual ("vale um E2E aqui?") → resposta curta: bug nomeado, camada, veredicto e o que NÃO vale. Não despeje o relatório inteiro para uma pergunta de uma linha.
 5. **Segurança:** para qualquer teste de RLS/injeção/abuso, seguir o [security-playbook](../security-playbook/SECURITY.md) — não reimplementar aqui.
 6. **Não inventar:** situação não coberta → dizer e propor com base no Bloco 1, marcando o que é hipótese a validar.
-7. **Teste que você diz que passa, você rodou.** E, para teste novo, diga como o viu falhar (inegociável 13). "Deve passar" não é evidência.
+7. **Registro no projeto:** se existe `TESTING-STATUS.md` na raiz, leia-o antes de propor (mapa de riscos, riscos aceitos) e atualize-o ao concluir uma estratégia ou revisão. Se não existe e o trabalho é mais que pontual, proponha criá-lo a partir de [templates/TESTING-STATUS.md](templates/TESTING-STATUS.md).
+8. **Teste que você diz que passa, você rodou.** E, para teste novo, diga como o viu falhar (inegociável 13). "Deve passar" não é evidência.
 
 ---
 

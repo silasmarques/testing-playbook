@@ -73,5 +73,5 @@ deno task dates   # como docs, mas revisão vencida vira erro
 - **Uma fonte da verdade:** regra mora em um módulo; os outros apontam. Segurança mora no security-playbook.
 - **Mudança de norma** (regra nova, alterada ou removida) vai para o CHANGELOG com o motivo.
 - **Laboratório:** defeito novo entra primeiro em `lab/cobaia/` e em `lab/gabarito.json`, com a mutação que o comprova. A cobaia não leva comentário que entregue o defeito. Os números de `lab/README.md` e do README vêm do marcador `<!-- lab: … -->`, que o CI confere contra a medição.
-- **Resultado de medição com IA só é anunciado depois de executado**, com data, modelo e número de execuções.
+- **Resultado de medição com IA não entra no repositório** — nem README, nem CHANGELOG, nem `lab/`. O repo é público e um número de uma execução seria lido como resultado do playbook. Fica em `docs/` (gitignored) ou com quem rodou.
 - `docs/` é gitignored (rascunhos internos) — nada do produto mora lá.

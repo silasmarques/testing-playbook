@@ -18,7 +18,7 @@ export interface Result { errors: string[]; warnings: string[]; info: string[]; 
 export interface Options { strictDates?: boolean; today?: number }
 
 const MODULE_DIRS = ["strategy", "playbooks"] as const;
-const DOC_DIRS = ["strategy", "playbooks", "prompts", "examples"] as const;
+const DOC_DIRS = ["strategy", "playbooks", "prompts", "examples", "templates"] as const;
 /** Pastas cujos .md têm os links conferidos, mas que não entram no roteamento do TESTING.md. */
 const LINK_ONLY_DIRS = ["lab"] as const;
 /** Dias até a revisão vencer: playbooks trimestral (+30 de folga); strategy anual. */

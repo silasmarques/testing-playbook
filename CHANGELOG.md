@@ -1,5 +1,11 @@
 # Histórico de versões
 
+## v1.3.0 — 2026-11-17 · registro por projeto
+
+- **[templates/TESTING-STATUS.md](templates/TESTING-STATUS.md)** — o registro que fica no projeto: mapa de riscos com o teste que prova cada um e a data em que foi visto falhar, última revisão de suíte, riscos aceitos, testes instáveis. O guia do README e as instruções para a IA passam a usá-lo.
+- **Medição — resultados não são publicados.** O repositório traz o método e o pontuador; número de execução vale para um modelo, num dia, e fica com quem rodou. [lab/README.md](lab/README.md) registra também que a cobaia atual discrimina pouco entre revisões boas.
+- **`deno task eval --prompt-only`** — imprime o prompt para rodar a medição à mão, sem o CLI.
+
 ## v1.2.0 — 2026-11-17 · a tese demonstrada
 
 A v1.1 verificava a documentação. Faltava evidência do que o playbook afirma sobre testes. Esta versão acrescenta um laboratório em que isso é executado.

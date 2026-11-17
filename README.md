@@ -29,6 +29,7 @@ testing-playbook/
 ├── playbooks/           ← integração/unitário, API, contrato, E2E e performance
 ├── prompts/             ← estratégia de teste por feature + revisão de suíte existente
 ├── examples/            ← exemplo resolvido: como fica uma boa estratégia
+├── templates/           ← TESTING-STATUS.md: o registro que fica no projeto
 ├── lab/                 ← suíte-cobaia com defeitos plantados + gabarito provado por mutação
 ├── eval/                ← mede se uma IA, com o playbook, revisa a cobaia direito
 ├── scripts/             ← verificação determinística da norma + mutações que a provam
@@ -93,7 +94,7 @@ Exemplo usado do começo ao fim: a **Agenda**, uma aplicação fictícia de marc
 | Etapa | Quando | Módulo principal |
 |---|---|---|
 | [0. Instalar](#etapa-0--instalar-uma-vez-por-máquina) | Uma vez por máquina | este README |
-| [1. Mapa de riscos](#etapa-1--mapa-de-riscos-da-aplicação-uma-vez-por-aplicação) | Uma vez por aplicação | [test-value-and-risk](strategy/test-value-and-risk.md) |
+| [1. Mapa de riscos](#etapa-1--mapa-de-riscos-da-aplicação-uma-vez-por-aplicação) | Uma vez por aplicação | [test-value-and-risk](strategy/test-value-and-risk.md) + [TESTING-STATUS](templates/TESTING-STATUS.md) |
 | [2. Revisar a suíte existente](#etapa-2--revisar-a-suíte-que-já-existe) | Se já há testes | [suite-review](prompts/suite-review.md) |
 | [3. Estratégia da feature](#etapa-3--estratégia-de-teste-antes-de-codar-a-feature) | A cada feature | [test-strategy](prompts/test-strategy.md) |
 | [4. Escrever os testes](#etapa-4--escrever-os-testes-camada-por-camada) | A cada feature | [playbooks/](playbooks/) |
@@ -173,7 +174,7 @@ Para a Agenda, o resultado esperado é uma tabela curta como esta:
 | Lembrete por e-mail com horário errado | Médio | Média | Automatizar em uma camada leve |
 | Cor do botão "Cancelar" fora do padrão | Baixo | Baixa | Não automatizar |
 
-Guarde o mapa no repositório do projeto (por exemplo, numa seção do `CLAUDE.md` ou `AGENTS.md` dele). Ele é a entrada das etapas 2 e 3 e muda pouco.
+Guarde o mapa no projeto: copie [templates/TESTING-STATUS.md](templates/TESTING-STATUS.md) para a raiz como `TESTING-STATUS.md` e preencha a tabela **Mapa de riscos**. As colunas "Teste que prova" e "Visto falhar em" começam vazias — é normal, e é o que as etapas 2 a 4 vão preencher. Esse arquivo é a entrada das próximas etapas e a IA passa a lê-lo antes de propor testes.
 
 ### Etapa 2 — Revisar a suíte que já existe
 
@@ -197,7 +198,7 @@ O que volta, e o que fazer com cada parte:
 | Prova de falha: o que foi quebrado e que teste percebeu | A parte mais valiosa — teste crítico que ficou verde com a regra quebrada é achado grave |
 | Lacunas: risco crítico sem teste | Vira entrada da Etapa 3 |
 
-Depois de aprovar: apague primeiro (é o ganho mais barato), conserte os que protegem risco alto, e só então escreva o que falta.
+Depois de aprovar: apague primeiro (é o ganho mais barato), conserte os que protegem risco alto, e só então escreva o que falta. Registre a revisão no `TESTING-STATUS.md`: data, veredictos, o que ficou pendente e cada lacuna na linha do risco correspondente.
 
 Um exemplo do defeito mais comum que essa revisão encontra — teste negativo sem controle positivo:
 
@@ -309,7 +310,7 @@ FLUXO CRÍTICO
 [ ] 1 E2E da jornada de cancelamento.   ← pendente: bloqueia o PR
 ```
 
-Item pendente bloqueia, ou vira **risco aceito por escrito** — quem aceitou e por quê. Não existe "depois eu adiciono".
+Item pendente bloqueia, ou vira **risco aceito por escrito** na tabela "Riscos aceitos" do `TESTING-STATUS.md` — quem aceitou, por quê e quando revisar. Não existe "depois eu adiciono".
 
 ### Etapa 7 — Sign-off de release
 
@@ -326,7 +327,8 @@ O valor do documento está em duas linhas: **riscos aceitos conscientemente** e 
 ### Etapa 8 — Manter a suíte honesta
 
 - **A cada trimestre, ou quando a suíte ficar lenta ou instável:** repita a Etapa 2 no trecho que mais mudou.
-- **Teste instável:** não é reexecutado até passar. Ou é consertado na causa (espera fixa, ordem, relógio — [test-layers](strategy/test-layers.md) P3), ou é apagado.
+- **Teste instável:** não é reexecutado até passar. Ou é consertado na causa (espera fixa, ordem, relógio — [test-layers](strategy/test-layers.md) P3), ou é apagado. Enquanto isso, fica listado no `TESTING-STATUS.md`.
+- **`TESTING-STATUS.md`:** atualizado a cada revisão e a cada risco aceito. Linha do mapa com "Visto falhar em" vazio é teste que ainda não provou nada.
 - **Mapa de riscos (Etapa 1):** revise quando entrar integração nova, meio de pagamento novo ou mudança de modelo de permissão.
 - **Playbook:** `git pull` nos dois clones; o [CHANGELOG](CHANGELOG.md) diz o que mudou na norma.
 
@@ -347,6 +349,7 @@ Cada parte do playbook tem um momento em que entra. Se alguma linha nunca foi us
 | [performance-testing](playbooks/performance-testing.md) | Etapa 4 | Endpoint caro tem threshold ligado a um SLO |
 | [test-strategy](prompts/test-strategy.md) | Etapa 3 | Estratégia existe antes do código da feature |
 | [suite-review](prompts/suite-review.md) | Etapas 2, 8 | A suíte já teve testes apagados por veredicto |
+| [TESTING-STATUS](templates/TESTING-STATUS.md) | Etapas 1, 2, 6, 8 | O arquivo existe na raiz do projeto e não está parado há meses |
 | [exemplo resolvido](examples/test-strategy-share-link.md) | Etapas 0, 3 | Você compara a resposta da IA com ele |
 | [laboratório](lab/README.md) | Etapa 2 | Você reconhece na sua suíte os defeitos de lá |
 | [security-playbook](https://github.com/silasmarques/security-playbook) | Etapas 1, 4 | Risco de segurança é roteado para lá |
@@ -399,7 +402,7 @@ Para cobertura completa, adote os dois — clonados lado a lado. O testing-playb
 - **A verificação é verificada:** [verify-docs.test.ts](scripts/verify-docs.test.ts) quebra cada uma dessas garantias de propósito e exige que o CI acuse. Localmente: `deno task ci`.
 - **A cadência é cobrada:** um workflow semanal falha quando um módulo passa do prazo de revisão.
 - **O gabarito do laboratório é provado:** [prova.test.ts](lab/prova.test.ts) planta cada bug na cobaia e exige que caiam exatamente os testes previstos; o pontuador da medição tem de reprovar uma revisão complacente e uma destrutiva ([score.test.ts](eval/score.test.ts)).
-- **O que o CI NÃO prova:** que as regras estão certas, que as fontes citadas ainda dizem o que dizíamos, nem que uma IA com o playbook revisa ou propõe testes melhores. As duas primeiras dependem da revisão humana. Para a terceira existe a medição (`deno task eval`), mas ela roda fora do CI e **ainda não tem resultado publicado**.
+- **O que o CI NÃO prova:** que as regras estão certas, que as fontes citadas ainda dizem o que dizíamos, nem que uma IA com o playbook revisa ou propõe testes melhores. As duas primeiras dependem da revisão humana. Para a terceira existe a medição (`deno task eval`), que roda fora do CI e cujos resultados **não são publicados aqui**: valem para um modelo, num dia. Rode no seu contexto.
 - Histórico de mudanças da norma: [CHANGELOG.md](CHANGELOG.md).
 - Este é um playbook **opinativo e curado**: encontrou um erro? Abra uma issue com o risco concreto, a regra afetada e a evidência.
 
