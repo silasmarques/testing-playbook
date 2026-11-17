@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "docs": "deno run --allow-read scripts/verify-docs.ts",
+    "dates": "deno run --allow-read scripts/verify-docs.ts --strict-dates",
+    "test": "deno test --allow-read --allow-write scripts/",
+    "ci": "deno task docs && deno check scripts/ && deno task test"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "lock": true
+}

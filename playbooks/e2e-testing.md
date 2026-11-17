@@ -16,7 +16,7 @@ sources:
 - **R3 — NEVER** `sleep`/espera fixa. Espere por **condição** (elemento acionável, resposta recebida, URL mudou). Espera fixa é a causa nº 1 de flakiness — ou é lenta demais, ou curta demais.
 - **R4 — MUST** localizar elementos por **papel/rótulo acessível ou test-id estável**, não por CSS/estrutura de DOM frágil. Seletor acoplado a layout quebra a cada ajuste visual.
 - **R5 — MUST** cada E2E semeia e limpa o **próprio estado** (usuário, dados), sem depender de outro teste nem de ordem. Estado compartilhado = falha em cascata e vermelho falso.
-- **R6 — MUST** incluir a jornada **negada**: usuário sem permissão tenta o fluxo restrito e é bloqueado. É jornada real e protege acesso — a checagem de segurança em si → [security-playbook](../../security-playbook/SECURITY.md).
+- **R6 — MUST** quando o produto tem área restrita, incluir **uma** jornada **negada**: usuário sem permissão tenta o fluxo e a interface o bloqueia sem exibir dado. Isto não re-testa a regra de autorização (ela é provada na API, onde é imposta — `test-layers.md` R3); prova a faceta que só o E2E enxerga: rota, redirecionamento e tela não entregam o conteúdo. Uma por fronteira de acesso, não uma por papel × tela. A checagem de segurança em si → [security-playbook](../../security-playbook/SECURITY.md).
 - **R7 — SHOULD** estabilizar dado/ambiente ANTES de automatizar um fluxo. Automatizar um fluxo instável produz automação instável.
 
 ## Padrões prontos
@@ -89,4 +89,4 @@ Funcionalidade: Jornada principal — criar e salvar um artefato
 - [ ] Zero `sleep` fixo; espera por condição (R3)?
 - [ ] Seletores estáveis (papel/rótulo/test-id) (R4)?
 - [ ] Cada teste é autossuficiente em estado (R5)?
-- [ ] Há ao menos uma jornada negada (sem permissão) (R6)?
+- [ ] Havendo área restrita, há uma jornada negada por fronteira de acesso (R6)?

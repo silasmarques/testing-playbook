@@ -16,7 +16,7 @@ sources:
 - **R3 — MUST** escolher o **tipo de teste pelo objetivo** (P1): smoke, load, stress, spike, soak. Cada um responde a uma pergunta diferente; rodar o errado responde a pergunta que ninguém fez.
 - **R4 — MUST** medir sob **carga realista**: dados representativos, distribuição de endpoints parecida com produção, ramp-up gradual. Carga irreal dá número irreal.
 - **R5 — MUST** aplicar performance nos **endpoints certos**: os críticos (fluxo de receita/uso) e os caros (geração pesada, export, IA). Não teste de carga em tudo — teste onde a degradação dói.
-- **R6 — SHOULD** rodar smoke de performance no CI (carga baixa, rápido) como gate leve; os pesados (stress/soak) sob demanda, fora do caminho de todo PR.
+- **R6 — SHOULD** rodar smoke de performance no CI (carga baixa, rápido) como gate leve; os pesados (stress/soak) sob demanda, fora do caminho de todo PR. Runner compartilhado tem latência ruidosa: no smoke de CI, o threshold duro é a taxa de erro; o de latência fica folgado, ou vira teste instável (TESTING.md, inegociável 8). Latência com SLO real se mede em ambiente dedicado.
 
 ## Padrões prontos
 
@@ -49,7 +49,7 @@ Referência de thresholds (ajuste ao seu SLO — não copie cego):
   endpoint comum        p95 < 2s
   geração pesada/IA     p95 < 8s (se síncrona) — ou torne assíncrona
   taxa de erro          < 1%
-  cenário nominal       zero 500
+  cenário nominal       zero 500 (o 1% de erro é teto sob carga, não o esperado)
   endpoint caro         rate limit dispara sob abuso controlado
 ```
 

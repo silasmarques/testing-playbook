@@ -21,11 +21,16 @@ last-review: 2026-07-02
 ```text
 SEMPRE:
 [ ] Todo teste novo tem asserção forte e um bug nomeado que ele pega.
+[ ] Todo teste novo foi visto falhar (regra quebrada de propósito ou teste escrito antes).
+[ ] Teste removido ou afrouxado no diff tem justificativa escrita no PR.
 [ ] Nenhum teste instável/duplicado/sem-asserção foi introduzido.
 [ ] Bug corrigido? Há um teste que falharia com o bug presente (regressão).
 
 SE O DIFF TOCA REGRA DE NEGÓCIO:
 [ ] Toda regra crítica alterada tem ao menos um teste na camada certa.
+
+SE O DIFF TOCA PERSISTÊNCIA (QUERY, MIGRATION, POLÍTICA DE ACESSO A DADO):
+[ ] Teste de integração contra o mesmo motor de produção, sem dublê no caminho do dado.
 
 SE O DIFF TOCA UMA API / ENDPOINT:
 [ ] Teste de contrato: status + schema + campos obrigatórios + o que NÃO pode vazar.
@@ -64,8 +69,8 @@ SE O DIFF TOCA LOG / OBSERVABILIDADE:
 ## Anti-padrões
 
 ```text
-❌ "Cobertura ≥ 80%" como gate único. [viola R1]
-   Objetivo, mas mede a coisa errada — some risco, incentiva teste de vaidade.
+❌ "Cobertura ≥ 80%" como gate único. [viola R2, test-value-and-risk R5]
+   É objetivo, mas mede a coisa errada: não acompanha o risco do diff e incentiva teste de vaidade.
 
 ❌ Aprovar o PR com o E2E "às vezes vermelho, mas geralmente passa". [viola R3]
    Instável aprovado ensina o time a ignorar vermelho — o próximo vermelho real passa batido.

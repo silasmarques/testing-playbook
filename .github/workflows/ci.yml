@@ -1,7 +1,5 @@
-# CI do playbook: a norma verificada como código.
-# verify-docs: links internos íntegros, limites de tamanho, frontmatter com last-review.
-# (Exemplos aqui são Gherkin/pseudocódigo — não há compilação a checar, ao contrário
-#  do security-playbook, cujos Padrões prontos são código real.)
+# CI do playbook: a norma verificada como código — e a verificação, verificada.
+# (Os exemplos dos módulos são Gherkin/pseudocódigo: não há compilação a checar.)
 name: ci
 on: [push, pull_request]
 
@@ -11,10 +9,16 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      # Actions fixadas por SHA de commit (security-playbook, inegociável 12)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
-      - name: Links internos, limites e frontmatter
-        run: deno run --allow-read scripts/verify-docs.ts
+      - name: Documentação consistente (links, frontmatter, referências, contagens, roteamento)
+        run: deno task docs
+      - name: Tipos
+        run: deno check --frozen scripts/
+      - name: A verificação consegue falhar (mutações)
+        run: deno task test

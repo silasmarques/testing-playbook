@@ -17,7 +17,7 @@ A tentação é somar `criticidade + risco + frequência + impacto − manutenç
 
 - **R1 — MUST** nomear o bug antes do teste: uma frase concreta do defeito que este teste pegaria ("usuário B lê o documento de A via API"). Não conseguiu nomear → o teste é candidato a não existir.
 - **R2 — MUST** posicionar o risco em **probabilidade × impacto** (P1) e deixar o quadrante decidir a profundidade: alto×alto testa em múltiplas camadas; baixo×baixo talvez nem automatize.
-- **R3 — MUST** passar pelo **gate de valor** (P2): se a resposta a TODAS as perguntas é "não", o teste é descarte.
+- **R3 — MUST** passar pelo **gate de valor** (P2), que é binário: ao menos um "sim" **crítico** → candidato a automatizar; só "sim" de apoio → opcional, não automatizar por padrão; tudo "não" → descarte.
 - **R4 — MUST** subtrair o custo de manutenção do valor de forma qualitativa: teste que quebra a cada refactor legítimo e protege pouco é passivo — não escreva, ou apague.
 - **R5 — NEVER** usar cobertura de código como critério de decisão. Cobertura mede linhas executadas, não risco coberto; 100% de linhas triviais some risco algum.
 - **R6 — MUST** classificar cada teste proposto como **obrigatório**, **recomendado** ou **opcional** — e listar à parte os que **não valem**, com o porquê. Dizer o que não fazer é entrega, não omissão.
@@ -44,6 +44,10 @@ IMPACTO
 > A diagonal importa mais que a célula exata: alto impacto **ou** alta probabilidade
 > já puxa para automação. Regra de bolso: **impacto alto nunca depende só de teste
 > manual** — automatize ao menos a camada mais barata que prova o risco.
+>
+> "Múltiplas camadas" no quadrante alto×alto significa **facetas diferentes do mesmo
+> risco** (a regra no unitário, a imposição na API, o caminho no E2E) — nunca o mesmo
+> cenário repetido em cada camada, que continua sendo duplicação (`test-layers.md` R3).
 
 ### P2 — Gate de valor (o teste agrega se responde "sim" a ≥1 crítica)
 
@@ -60,7 +64,8 @@ DE APOIO (reforçam, mas sozinhas não bastam):
 [ ] Substitui trabalho manual repetitivo e caro?
 [ ] Gera evidência útil para a decisão de release?
 
-Se a resposta é "não" para TODAS → descartar (ou exploratório/manual pontual).
+Nenhuma crítica, só apoio → OPCIONAL: não automatizar por padrão; justifique se fizer.
+"Não" para TODAS                → descartar (ou exploratório/manual pontual).
 ```
 
 ### P3 — Da decisão para a camada
@@ -80,13 +85,13 @@ Risco é CARGA/latência/estabilidade                               → performa
 ❌ "Vamos subir a cobertura para 80%." [viola R5]
    Meta de cobertura gera testes de getter e de mock — número sobe, risco fica.
 
-❌ Score 7,5 → automatiza; 7,4 → não. [falsa precisão]
+❌ Score 7,5 → automatiza; 7,4 → não. [viola R2, R3]
    A fronteira é ruído. Use o quadrante + o gate; decida pelo risco nomeado.
 
 ❌ Testar que "o botão existe na tela". [viola R1]
    Nenhum bug importante e plausível. Vaidade.
 
-❌ O mesmo "usuário sem permissão" em unitário, API e E2E, igual. [viola camada]
+❌ O mesmo "usuário sem permissão" em unitário, API e E2E, igual. [viola test-layers R3]
    Um teste de autorização na camada que impõe a regra (API/servidor) basta;
    E2E cobre a jornada, não re-testa a regra.
 ```

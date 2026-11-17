@@ -1,4 +1,4 @@
-# Secret scan — mesma prática que o testing-playbook prega para os projetos que testa.
+# Secret scan — mesma prática que o security-playbook exige dos projetos que o adotam.
 name: gitleaks
 on: [pull_request, push, workflow_dispatch]
 
@@ -8,10 +8,11 @@ permissions:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+          fetch-depth: 0 # histórico completo — secret antigo também é vazamento
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

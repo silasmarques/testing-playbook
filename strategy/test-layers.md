@@ -25,7 +25,7 @@ A pirâmide clássica (muitos unitários, poucos E2E) nasceu quando testes de in
 - **R2 — MUST** testar **comportamento observável**, não implementação interna, em toda camada. Teste acoplado a "como" quebra a cada refactor legítimo; teste acoplado a "o quê" sobrevive.
 - **R3 — NEVER** duplicar o mesmo risco em várias camadas sem justificativa. A regra de autorização se testa onde ela é imposta (servidor/API); o E2E cobre a jornada, não re-verifica a regra.
 - **R4 — MUST** subir na pirâmide/trophy só quando a camada abaixo não consegue provar o risco. E2E é caro e frágil: reserve-o para jornadas, não para regras.
-- **R5 — MUST** manter cada camada determinística com os controles dela (ver os playbooks): unitário sem I/O real; integração com dado semeado e limpo; E2E com auto-waiting, nunca `sleep`.
+- **R5 — MUST** manter cada camada determinística com os controles dela (ver os playbooks): unitário sem I/O real; integração com dado semeado e limpo (`integration-testing.md` R5); E2E com auto-waiting, nunca `sleep`.
 
 ## Padrões prontos
 
@@ -35,7 +35,7 @@ A pirâmide clássica (muitos unitários, poucos E2E) nasceu quando testes de in
 |---|---|---|---|
 | **Unitário** | Uma regra/função isolada em vários cenários e bordas | "Essa lógica está correta em todas as entradas?" | Política de senha; cálculo de score; parser; normalização de status; sanitização de input |
 | **Integração** | Duas+ partes reais conversando | "As partes conversam como eu suponho?" | Serviço grava no banco real; auth cria perfil; upload persiste e indexa; consulta retorna só o do dono |
-| **API / serviço** | O contrato HTTP: status, schema, autorização, erro | "O endpoint se comporta como o contrato diz?" | 401 sem token; 403 recurso de outro; 404 inexistente; payload no limite; erro sem stack trace |
+| **API / serviço** | O contrato HTTP: status, schema, autorização, erro | "O endpoint se comporta como o contrato diz?" | 401 sem token; 403 sem permissão; 404 inexistente ou de outro dono; payload no limite; erro sem stack trace |
 | **Contrato** | A fronteira consumidor↔provedor não quebrou | "Uma mudança no provedor quebraria o consumidor?" | Frontend↔backend; backend↔API externa; o que o consumidor de fato usa |
 | **E2E** | Uma jornada crítica de ponta a ponta, como o usuário faz | "O usuário consegue completar o fluxo que dá dinheiro/valor?" | Login → ação principal → resultado persistido |
 | **Segurança** | Abuso é negado (→ security-playbook) | "O atacante/usuário indevido é bloqueado?" | A×B (BOLA); injeção; vazamento de secret; rate limit |
@@ -76,7 +76,7 @@ Performance cobre a CARGA.
    Caro e frágil. A regra se testa na API/unitário; o E2E cobre a jornada.
 
 ❌ Mockar tudo até o teste de integração não integrar nada. [viola R2]
-   Mock contra mock testa o mock. Integração exige ao menos uma parte real.
+   Mock contra mock testa o mock. Integração exige que a parte arriscada seja real (integration-testing R1).
 ```
 
 ## Checklist

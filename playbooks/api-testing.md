@@ -1,5 +1,5 @@
 ---
-last-review: 2026-07-02
+last-review: 2026-11-17
 sources:
   - https://owasp.org/API-Security/editions/2023/
   - https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
@@ -7,17 +7,17 @@ sources:
 
 # Testar API / Serviços HTTP
 
-> A API deve ser testada ANTES da UI: a interface esconde problemas que a API expõe crus. E é onde moram os riscos mais caros — a [OWASP API Security Top 10:2023](https://owasp.org/API-Security/editions/2023/) tem no topo **Broken Object Level Authorization (BOLA)**, sozinha ~40% dos ataques a APIs. Este playbook é agnóstico: os exemplos usam Gherkin + arrange/act/assert; adapte ao seu framework (supertest, RestAssured, requests+pytest, Postman/newman, hurl, k6…).
+> A API deve ser testada ANTES da UI: a interface esconde problemas que a API expõe crus. E é onde moram os riscos mais caros — a [OWASP API Security Top 10:2023](https://owasp.org/API-Security/editions/2023/) tem no topo **Broken Object Level Authorization (BOLA)**, que ela classifica como de exploração fácil e prevalência ampla. Este playbook é agnóstico: os exemplos usam Gherkin + arrange/act/assert; adapte ao seu framework (supertest, RestAssured, requests+pytest, Postman/newman, hurl, k6…).
 
 ## Regras
 
-- **R1 — MUST** testar cada endpoint em três eixos: **funcional** (happy + negative + boundary), **contrato** (status + schema + campos) e **autorização** (autenticado? dono do objeto?). Faltar um eixo deixa risco descoberto.
-- **R2 — MUST** teste de **ownership A×B** para todo recurso com dono: usuário B, autenticado e legítimo, não alcança o recurso de A. É o BOLA (API #1). A checagem de segurança em si → [security-playbook](../../security-playbook/core/security-testing.md).
+- **R1 — MUST** avaliar cada endpoint em três eixos: **funcional** (happy + negative + boundary), **contrato** (status + schema + campos) e **autorização** (autenticado? dono do objeto?). A profundidade segue o risco (`test-value-and-risk.md` P1): endpoint que toca dado de usuário, dinheiro ou permissão cobre os três; endpoint trivial de baixo impacto fica com o mínimo que tem bug nomeado. A matriz P1 é cardápio, não cota.
+- **R2 — MUST** teste de **ownership A×B** para todo recurso com dono: usuário B, autenticado e legítimo, não alcança o recurso de A. É o BOLA (API #1). Resposta esperada: **404** (preferível — não revela que o recurso existe) ou 403; escolha uma política para a API inteira e teste-a de forma consistente. Todo teste A×B tem controle positivo: antes de "B não vê", afirme "A vê" — senão ele passa com a tabela vazia. A checagem de segurança em si → [security-playbook](../../security-playbook/core/security-testing.md).
 - **R3 — MUST** teste de autenticação: sem token → 401; token inválido/expirado → 401. E de autorização: sem permissão → 403. Endpoint protegido sem esses dois testes é endpoint sem prova de proteção.
 - **R4 — MUST** validar que o erro **não vaza internals**: sem stack trace, SQL, path, versão, token ou PII no corpo. Erro é genérico + identificador de correlação.
 - **R5 — MUST** validar o **contrato de resposta**: campos obrigatórios presentes, tipos corretos, e — crítico — os campos que NUNCA podem aparecer (token, secret, hash de senha, dado de outro usuário). Ver `contract-testing.md`.
-- **R6 — MUST** para operação que o cliente pode reenviar (retry, pagamento): teste de **idempotência** — repetir não duplica efeito. E para listagem: teste de **paginação** (limite imposto pelo servidor) e **filtros** em combinações reais.
-- **R7 — MUST** cobrir **boundary**: vazio, mínimo, máximo, acima do máximo, tipo errado. O bug quase sempre está na borda, não no meio.
+- **R6 — MUST** para operação que o cliente pode reenviar (retry, pagamento): teste de **idempotência** — repetir não duplica efeito. Para listagem: teste de **paginação** (limite imposto pelo servidor) e **filtros** em combinações reais. Para operação cara (IA, e-mail, export): **rate limit** estourado de verdade — a chamada N+1 responde 429.
+- **R7 — MUST** cobrir **boundary** em todo campo com limite ou validação: vazio, mínimo, máximo, acima do máximo, tipo errado. O bug quase sempre está na borda, não no meio.
 
 ## Padrões prontos
 
@@ -31,7 +31,7 @@ sources:
 | Contract | Status + schema + campos + o que não vaza | schema válido; sem `token` no corpo |
 | Auth | Sem/inválido token | 401 |
 | Authorization | Autenticado sem permissão | 403 |
-| Ownership (BOLA) | B não acessa recurso de A | 403/404 sem dado de A |
+| Ownership (BOLA) | B não acessa recurso de A (e A acessa) | 404 (ou 403, conforme a política) sem dado de A |
 | Idempotência | Reenvio não duplica | 1 efeito, não 2 |
 | Paginação | Página/limite/ordenação/total | limite do servidor respeitado |
 | Rate limit | Abuso controlado | 429 ao estourar |
@@ -111,8 +111,8 @@ teste "POST /artifacts recusa payload acima do limite":
 
 ## Checklist
 
-- [ ] Cada endpoint tem happy + negative + boundary (R1, R7)?
-- [ ] Recurso com dono tem teste A×B de ownership (R2)?
+- [ ] Cada endpoint foi avaliado nos três eixos, com profundidade proporcional ao risco (R1, R7)?
+- [ ] Recurso com dono tem teste A×B de ownership, com controle positivo (R2)?
 - [ ] Endpoint protegido tem 401 e 403 (R3)?
 - [ ] O corpo é validado por contrato, incluindo o que NÃO pode vazar (R5)?
 - [ ] Erro testado sem vazar internals (R4)?

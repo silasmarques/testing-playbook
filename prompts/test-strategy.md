@@ -19,6 +19,8 @@ Regras (do playbook):
 - Não duplique o mesmo risco em unitário + API + E2E sem justificar.
 - Classifique cada teste como: OBRIGATÓRIO, RECOMENDADO ou OPCIONAL.
 - Liste também os testes que NÃO valem a pena, com o porquê.
+- Para cada teste OBRIGATÓRIO, diga como vê-lo falhar (que regra quebrar) e
+  confirme que ele exercita o artefato real, não uma cópia da regra.
 - Segurança (RLS, injeção, abuso, vazamento) → seguir o security-playbook.
 - Performance → sempre com threshold (SLO). E2E → jornada, não detalhe.
 
